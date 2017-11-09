@@ -95,7 +95,8 @@ object Examples extends LazyLogging {
     TaskDescriptor(
       "runSingleCommand task",
       Seq(Resource("cpus", Value.Type.SCALAR, Some(Value.Scalar(1.0)))),
-      Left(CommandInfo(shell = Some(true), value = Some(cmd)))
+      None,
+      Some(CommandInfo(shell = Some(true), value = Some(cmd)))
     )
   }
 

@@ -70,7 +70,7 @@ class FrameworkSpec
     val task = TaskDescriptor(
       "docker test task",
       Seq(Resource("cpus", Value.Type.SCALAR, Some(Value.Scalar(1.0)))),
-      Right(mesos.ContainerInfo(
+      Some(mesos.ContainerInfo(
         mesos.ContainerInfo.Type.DOCKER,
         hostname = Some("optional"),
         docker = Some(mesos.ContainerInfo.DockerInfo(
@@ -80,9 +80,37 @@ class FrameworkSpec
           privileged = Some(false)
         ))
       )),
+      None,
       Seq()
     )
 
+    val fut = Examples.runSingleTask("localhost:5050", task)
+    Await.ready(fut, 30.seconds)
+    assert(fut.value.get.isSuccess)
+  }
+
+  it should "successfully run command Task on a Docker Container" in {
+    if (!isDockerInstalled) cancel("Docker is not installed")
+
+    val task = TaskDescriptor(
+      "docker test task",
+      Seq(Resource("cpus", Value.Type.SCALAR, Some(Value.Scalar(1.0)))),
+      Some(mesos.ContainerInfo(
+        mesos.ContainerInfo.Type.DOCKER,
+        hostname = Some("optional"),
+        docker = Some(mesos.ContainerInfo.DockerInfo(
+          image = "python:3.6-alpine",
+          forcePullImage = Some(true),
+          network = Some(mesos.ContainerInfo.DockerInfo.Network.BRIDGE),
+          privileged = Some(false)
+        ))
+      )),
+      Some(mesos.CommandInfo(
+        shell = Some(true),
+        value = Some("python -c 'print(\"hello-world\")'")
+      )),
+      Seq()
+    )
     val fut = Examples.runSingleTask("localhost:5050", task)
     Await.ready(fut, 30.seconds)
     assert(fut.value.get.isSuccess)
@@ -96,6 +124,7 @@ class FrameworkSpec
     } yield st
     assert(st.futureValue(PatienceConfig(2.seconds)) == Status.DRIVER_ABORTED)
   }
+
 
   "reconnect" should "be possible after a disconnect" in {
     val fw = Examples.createFw()

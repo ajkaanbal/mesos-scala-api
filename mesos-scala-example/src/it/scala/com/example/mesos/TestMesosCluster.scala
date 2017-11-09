@@ -39,7 +39,7 @@ trait TestMesosCluster {
   def startTestCluster(): Seq[Process] = {
     val mesosHome = assertEnvVariables()
     val mesosMasterBin = s"$mesosHome/build/src/mesos-master"
-    val mesosSlaveBin = s"$mesosHome/build/src/mesos-slave"
+    val mesosSlaveBin = s"$mesosHome/build/src/mesos-agent"
     assert(new java.io.File(mesosMasterBin).exists, s"Couldn't find Mesos executable $mesosMasterBin")
     assert(new java.io.File(mesosSlaveBin).exists, s"Couldn't find Mesos executable $mesosSlaveBin")
 
@@ -53,7 +53,7 @@ trait TestMesosCluster {
     ).run()
 
     val slaves = 1 to 6 map { id =>
-      val slaveTmp = Files.createTempDirectory(Paths.get("/tmp"), "mesos-slave-").toAbsolutePath().toString()
+      val slaveTmp = Files.createTempDirectory(Paths.get("/tmp"), "mesos-agent-").toAbsolutePath().toString()
 
       s"rm -vf $slaveTmp/meta/slaves/latest".!
 
