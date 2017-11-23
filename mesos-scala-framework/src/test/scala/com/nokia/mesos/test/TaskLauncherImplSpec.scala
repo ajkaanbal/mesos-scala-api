@@ -106,7 +106,7 @@ class TaskLauncherImplSpec extends FlatSpec with Matchers with ScalaFutures with
 
   // TODO: also test with ContainerInfo
   def taskDescriptor(taskName: String, resourceName: String) =
-    TaskDescriptor(taskName, resource(resourceName), Left(CommandInfo()))
+    TaskDescriptor(taskName, resource(resourceName), None, Some(CommandInfo()))
 
   def taskInfo(td: TaskDescriptor) =
     TaskInfo(td.name, TaskID("task-1"), defaultSlaveID, td.resources, command = Some(CommandInfo()))

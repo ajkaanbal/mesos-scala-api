@@ -28,7 +28,7 @@ import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import de.heikoseeberger.sbtheader.HeaderKey._
 import de.heikoseeberger.sbtheader.HeaderPattern
 import scalariform.formatter.preferences._
-import com.trueaccord.scalapb.{ScalaPbPlugin => PB}
+// import com.trueaccord.scalapb.{ScalaPbPlugin => PB}
 import com.typesafe.sbteclipse.plugin.EclipsePlugin.EclipseKeys
 
 lazy val root = (project in file(".")).
@@ -55,12 +55,18 @@ lazy val `mesos-scala-interface` = (project in file("mesos-scala-interface")).
   settings(commonSettings: _*).
   settings(publishSettings: _*).
   settings(
-    libraryDependencies += "org.apache.mesos" % "mesos" % "0.28.2",
-    PB.protobufSettings,
-    PB.javaConversions in PB.protobufConfig := true,
+    libraryDependencies += "org.apache.mesos" % "mesos" % "1.4.1",
+    PB.targets in Compile := Seq(
+      PB.gens.java -> (sourceManaged in Compile).value,
+      scalapb.gen(javaConversions=true) -> (sourceManaged in Compile).value
+    )
+
+    // excludeFilter in PB.generate := "*.proto"
+    // PB.protobufSettings,
+    // PB.javaConversions in PB.protobufConfig := true,
     // don't generate Java code from the .proto file (we only need Scala):
-    PB.generatedTargets in PB.protobufConfig ~= { trgs => for ((f, p) <- trgs if !p.endsWith(".java")) yield (f, p) },
-    PB.flatPackage in PB.protobufConfig := false
+    // PB.generatedTargets in PB.protobufConfig ~= { trgs => for ((f, p) <- trgs if !p.endsWith(".java")) yield (f, p) },
+    // PB.flatPackage in PB.protobufConfig := false
   )
 
 lazy val `mesos-scala-framework` = (project in file("mesos-scala-framework")).
